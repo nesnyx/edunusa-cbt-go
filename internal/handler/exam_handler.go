@@ -1,0 +1,83 @@
+package handler
+
+import (
+	"cbt/internal/dtos"
+	"cbt/internal/service"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+type examHandler struct {
+	examService service.ExamService
+}
+
+func NewExamHandler(examService service.ExamService) *examHandler {
+	return &examHandler{examService}
+}
+
+func (h *examHandler) InsertNewExam(c *gin.Context) {
+	var req dtos.ExamRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+	exam, err := h.examService.Insert(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error created new exam: " + err.Error()})
+		return
+	}
+
+	response := dtos.ExamResponse{
+		ID:                 exam.ID,
+		CreatedByTeacherID: exam.CreatedByTeacherID,
+		AccessTokenExam:    exam.AccessToken,
+		ExamTitle:          exam.ExamTitle,
+	}
+	c.JSON(http.StatusCreated, response)
+
+}
+
+func (h *examHandler) FindByID(c *gin.Context) {
+	id := c.Param("id")
+	exam, err := h.examService.FindByID(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Exam Doesnt Exist"})
+		return
+	}
+
+	response := dtos.ExamResponse{
+		ID:                 exam.ID,
+		CreatedByTeacherID: exam.CreatedByTeacherID,
+		AccessTokenExam:    exam.AccessToken,
+		ExamTitle:          exam.ExamTitle,
+	}
+	c.JSON(http.StatusOK, response)
+
+}
+
+func (h *examHandler) FindByTeacherID(c *gin.Context) {
+	exam, err := h.examService.FindByTeacherID(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Exam Doesnt Exist"})
+		return
+	}
+	response := dtos.ExamResponse{
+		ID:                 exam.ID,
+		CreatedByTeacherID: exam.CreatedByTeacherID,
+		AccessTokenExam:    exam.AccessToken,
+		ExamTitle:          exam.ExamTitle,
+	}
+	c.JSON(http.StatusOK, response)
+
+}
+
+func (h *examHandler) DeleteExam(c *gin.Context) {
+	id := c.Param("id")
+	deleteExam, err := h.examService.Delete(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": error.Error})
+		return
+	}
+	c.JSON(http.StatusOK, deleteExam)
+}

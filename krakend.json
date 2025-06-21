@@ -1,0 +1,95 @@
+{
+  "$schema": "https://www.krakend.io/schema/v2.5/krakend.json",
+  "version": 3,
+  "port": 8888,
+  "host": [
+    "https://cbt.edunex.id/api"
+  ],
+  "endpoints": [
+
+    {
+      "endpoint": "/students",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/students/get-all"
+        }
+      ]
+    },
+    {
+      "endpoint": "/students/{id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/students/get-by-id/{id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/students",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/students/create"
+        }
+      ]
+    },
+
+    {
+      "endpoint": "/teachers",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/teachers/list"
+        }
+      ]
+    },
+    {
+      "endpoint": "/teachers/{id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/teachers/{id}"
+        }
+      ]
+    },
+  
+    {
+      "endpoint": "/exams",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/exams"
+        }
+      ]
+    },
+    {
+      "endpoint": "/exams/{id}/submit",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/exams/{id}/submit-answers"
+        }
+      ]
+    },
+
+    {
+      "endpoint": "/classes",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/classes"
+        }
+      ]
+    },
+    {
+      "endpoint": "/classes/{id}/students",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/v1/classes/{id}/list-students"
+        }
+      ]
+    }
+  ]
+}
