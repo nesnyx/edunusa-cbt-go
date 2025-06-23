@@ -3,9 +3,9 @@ package service
 import (
 	repositoryextention "cbt/extentions/repositoryExtention"
 	"cbt/internal/dtos"
+	"cbt/internal/feature"
 	"cbt/internal/models"
 	"cbt/internal/repository"
-	"cbt/internal/utils"
 	"errors"
 	"fmt"
 	"time"
@@ -15,11 +15,17 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	ErrExamNotFound   = errors.New("exam tidak ditemukan")
+	ErrInvalidClassID = errors.New("class id is invalid or does not exist")
+)
+
 type ExamService interface {
 	Insert(req *dtos.ExamRequest) (*models.Exam, error)
 	FindByID(id string) (*models.Exam, error)
 	FindByTeacherID(c *gin.Context) (*models.Exam, error)
 	Delete(id string) (int64, error)
+	Update(id string, instructions string, class_id string, duration_minutes int) (bool, error)
 }
 
 type examService struct {
@@ -63,7 +69,7 @@ func (e *examService) Insert(req *dtos.ExamRequest) (*models.Exam, error) {
 		}
 		return nil, errTeacherExisting
 	}
-	tokenExam, err := utils.GenerateSecureTokenExam()
+	tokenExam, err := feature.GenerateSecureTokenExam()
 	t := time.Now().Add(30 * time.Minute)
 	var future *time.Time = &t
 	if err != nil {
@@ -100,4 +106,16 @@ func (e *examService) Delete(id string) (int64, error) {
 		return deleteExam, err
 	}
 	return deleteExam, err
+}
+
+func (e *examService) Update(id string, instructions string, class_id string, duration_minutes int) (bool, error) {
+	_, err := e.examRepository.GetExamByID(id)
+	if err != nil {
+		return false, ErrExamNotFound
+	}
+	updateExam, err := e.examRepository.Update(id, instructions, class_id, duration_minutes)
+	if err != nil {
+		return updateExam, err
+	}
+	return updateExam, err
 }

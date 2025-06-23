@@ -8,9 +8,10 @@ import (
 )
 
 type StudentRepositoryInterface interface {
-	CreateStudent(student *models.Student) error
+	CreateStudent(student *models.Student) (*models.Student, error)
 	DeleteStudent(id uuid.UUID) (bool, error)
 	GetAll() ([]models.Student, error)
+	FindByID(id string) (*models.Student, error)
 }
 
 type student struct {
@@ -26,8 +27,12 @@ func (s *student) DeleteStudent(id uuid.UUID) (bool, error) {
 	panic("unimplemented")
 }
 
-func (s *student) CreateStudent(student *models.Student) error {
-	return s.db.Create(&student).Error
+func (s *student) CreateStudent(student *models.Student) (*models.Student, error) {
+	err := s.db.Create(&student).Error
+	if err != nil {
+		return nil, err
+	}
+	return student, nil
 }
 
 func (s *student) GetAll() ([]models.Student, error) {
@@ -37,4 +42,13 @@ func (s *student) GetAll() ([]models.Student, error) {
 		return nil, err
 	}
 	return students, nil
+}
+
+func (s *student) FindByID(id string) (*models.Student, error) {
+	var student *models.Student
+	err := s.db.Select("id,nis,profile").First(&student, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return student, nil
 }

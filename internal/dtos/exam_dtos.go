@@ -17,6 +17,15 @@ type ExamRequest struct {
 	DurationMinutes    int       `json:"duration_minutes" binding:"required"`
 }
 
+type ExamRequestUpdate struct {
+	ExamTitle       string    `json:"exam_title" binding:"required"`
+	Instructions    string    `json:"instructions" binding:"required"`
+	ClassID         string    `json:"class_id" binding:"required"`
+	StartDatetime   time.Time `json:"start_datetime" binding:"required"`
+	EndDatetime     time.Time `json:"end_datetime" binding:"required"`
+	DurationMinutes int       `json:"duration_minutes" binding:"required"`
+}
+
 type ExamRequestCreatedByTeacherID struct {
 	CreatedByTeacherID uuid.UUID `json:"created_by_teacher_id" binding:"required"`
 }

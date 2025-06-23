@@ -22,7 +22,7 @@ func (h *studentHandler) InsertStudent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
-	student, err := h.studentService.InsertStudent(&req)
+	student, _, err := h.studentService.InsertStudent(&req)
 	if err != nil {
 		if err.Error() == "nis already exists" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -40,7 +40,7 @@ func (h *studentHandler) InsertStudent(c *gin.Context) {
 }
 
 func (h *studentHandler) FindAllStudent(c *gin.Context) {
-	students, err := h.studentService.FindAll() 
+	students, err := h.studentService.FindAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find all students: " + err.Error()})
 		return

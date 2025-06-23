@@ -81,3 +81,22 @@ func (h *examHandler) DeleteExam(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, deleteExam)
 }
+
+func (h *examHandler) UpdateExam(c *gin.Context) {
+	id := c.Param("id")
+	var req dtos.ExamRequestUpdate
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id harusa ada"})
+		return
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+	exam, err := h.examService.Update(id, req.Instructions, req.ClassID, req.DurationMinutes)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error created new exam: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, exam)
+}

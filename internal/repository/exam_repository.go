@@ -11,6 +11,7 @@ type ExamRepository interface {
 	DeleteExam(id string) (int64, error)
 	GetExamByID(id string) (*models.Exam, error)
 	GetExamByTeacherID(id string) (*models.Exam, error)
+	Update(id string, instructions string, class_id string, duration_minutes int) (bool, error)
 }
 
 type examRepository struct {
@@ -58,4 +59,13 @@ func (e *examRepository) DeleteExam(id string) (int64, error) {
 
 	// Kembalikan jumlah baris yang dihapus dan error (yang akan nil jika sukses)
 	return result.RowsAffected, nil
+}
+
+func (e *examRepository) Update(id string, instructions string, class_id string, duration_minutes int) (bool, error) {
+	query := "UPDATE exam SET exam_title = ?, instructions = ?, class_id = ? , duration_minutes = ? WHERE id = ?"
+	err := e.db.Exec(query, instructions, class_id, duration_minutes, id).Error
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

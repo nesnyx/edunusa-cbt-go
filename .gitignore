@@ -1,0 +1,6 @@
+.env
+keys
+go.sum
+kraken.sh
+configs
+app.env

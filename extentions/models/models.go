@@ -16,18 +16,20 @@ type Base struct {
 
 type Student struct {
 	Base
-	NIS      string          `gorm:"type:varchar(50);not null" json:"nis"`
-	Password string          `gorm:"type:varchar(50);not null" json:"password"`
+	NIS      string          `gorm:"type:varchar(50);not null;unique" json:"nis"`
+	Password string          `gorm:"type:varchar(255);not null" json:"-"`
 	Profile  json.RawMessage `gorm:"type:json" json:"profile"`
-	Roles    []HasRole       `gorm:"polymorphic:Owner;" json:"roles,omitempty"`
+
+	Roles []HasRole `gorm:"polymorphic:Owner;polymorphicValue:student" json:"roles,omitempty"`
 }
 
 type Teacher struct {
 	Base
-	NIK      string          `gorm:"type:varchar(50);not null" json:"nik"`
-	Password string          `gorm:"type:varchar(50);not null" json:"password"`
+	NIK      string          `gorm:"type:varchar(50);not null;unique" json:"nik"`
+	Password string          `gorm:"type:varchar(255);not null" json:"-"`
 	Profile  json.RawMessage `gorm:"type:json" json:"profile"`
-	Roles    []HasRole       `gorm:"polymorphic:Owner;" json:"roles,omitempty"`
+
+	Roles []HasRole `gorm:"polymorphic:Owner;polymorphicValue:teacher" json:"roles,omitempty"`
 }
 
 type Subject struct {
@@ -36,8 +38,7 @@ type Subject struct {
 	Description string    `gorm:"type:text;null" json:"description,omitempty"`
 	ClassID     uuid.UUID `gorm:"type:varchar(255);not null" json:"class_id"`
 
-	HasRole []HasRole `gorm:"polymorphic:Owner;" json:"roles,omitempty"`
-	Class   Class     `gorm:"foreignKey:ClassID" json:"class,omitempty"`
+	Class Class `gorm:"foreignKey:ClassID" json:"class,omitempty"`
 }
 
 type Role struct {
@@ -58,14 +59,11 @@ type Class struct {
 type HasRole struct {
 	ID        uuid.UUID `gorm:"type:varchar(255);primary_key" json:"id"`
 	RoleID    string    `gorm:"type:varchar(255);not null" json:"role_id"`
-	OwnerID   string    `gorm:"type:varchar(255);not null" json:"owner_id"`
-	OwnerType string    `gorm:"type:varchar(100);not null" json:"owner_type"` // Akan berisi "students" atau "teachers"
-
+	OwnerID   string    `gorm:"type:varchar(255);not null" json:"owner_id"`  // Tipe disamakan dengan ID di Base
+	OwnerType string    `gorm:"type:varchar(50);not null" json:"owner_type"` // "student" atau "teacher"
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	// Teacher Teacher `gorm:"foreignKey:OwnerID;references:ID" json:"role"`
-	// Student Student `gorm:"foreignKey:OwnerID;references:ID" json:"role"`
 	Role Role `gorm:"foreignKey:RoleID" json:"role"`
 }
 

@@ -5,33 +5,55 @@ import (
 	"cbt/extentions/models"
 	repositoryextention "cbt/extentions/repositoryExtention"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 type StudentServiceInterface interface {
-	InsertStudent(req *dtos.InsertStudentRequest) (*models.Student, error)
+	InsertStudent(req *dtos.InsertStudentRequest) (*models.Student, *models.HasRole, error)
 	FindAll() ([]models.Student, error)
+	FindByID(id string) (*models.Student, error)
 }
 
 type service struct {
 	studentRepository repositoryextention.StudentRepositoryInterface
+	hasRoleRepo       repositoryextention.HasRoleRepositoryInterface
 }
 
-func NewStudentService(studentRepo repositoryextention.StudentRepositoryInterface) *service {
-	return &service{studentRepo}
+func NewStudentService(studentRepo repositoryextention.StudentRepositoryInterface, hasRoleRepo repositoryextention.HasRoleRepositoryInterface) *service {
+	return &service{studentRepo, hasRoleRepo}
 }
 
-func (s *service) InsertStudent(req *dtos.InsertStudentRequest) (*models.Student, error) {
+func (s *service) FindByID(id string) (*models.Student, error) {
+	student, err := s.studentRepository.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return student, nil
+}
+
+func (s *service) InsertStudent(req *dtos.InsertStudentRequest) (*models.Student, *models.HasRole, error) {
 
 	newStudent := &models.Student{
 		NIS:      req.NIS,
 		Password: req.Password,
 		Profile:  req.Profile,
 	}
-	err := s.studentRepository.CreateStudent(newStudent)
+	student, err := s.studentRepository.CreateStudent(newStudent)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create student: %w", err)
+		return nil, nil, fmt.Errorf("failed to create student: %w", err)
 	}
-	return newStudent, nil
+	setHasRole := &models.HasRole{
+		ID:        uuid.New(),
+		RoleID:    string(repositoryextention.StudentRole),
+		OwnerID:   student.ID.String(),
+		OwnerType: "student",
+	}
+	hasRoleTeacher, errHasRole := s.hasRoleRepo.Create(setHasRole)
+	if errHasRole != nil {
+		return nil, nil, errHasRole
+	}
+	return student, hasRoleTeacher, nil
 }
 
 func (s *service) FindAll() ([]models.Student, error) {
