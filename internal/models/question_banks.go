@@ -1,17 +1,15 @@
 package models
 
 import (
-	"cbt/extentions/models"
-
-	"github.com/google/uuid"
+	models "cbt/extentions/models"
 )
 
 // QuestionBank merepresentasikan tabel 'question_banks'
 type QuestionBank struct {
 	Base
 	BankName           string         `gorm:"type:varchar(255);not null" json:"bank_name"`
-	SubjectID          uuid.UUID      `gorm:"type:varchar(255);not null" json:"subject_id"`
-	CreatedByTeacherID uuid.UUID      `gorm:"type:varchar(255);not null" json:"created_by_teacher_id"`
+	SubjectID          string         `gorm:"type:varchar(255);not null" json:"subject_id"`
+	CreatedByTeacherID string         `gorm:"type:varchar(255);not null" json:"created_by_teacher_id"`
 	Description        string         `gorm:"type:text;null" json:"description,omitempty"`
 	Subject            models.Subject `gorm:"foreignKey:SubjectID;references:ID" json:"subject,omitempty"`
 	CreatedByTeacher   models.Teacher `gorm:"foreignKey:CreatedByTeacherID;references:ID" json:"created_by_teacher,omitempty"`

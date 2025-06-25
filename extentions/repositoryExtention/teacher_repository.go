@@ -39,7 +39,7 @@ func (r *teacherRepository) GetAll() ([]models.Teacher, error) {
 
 func (r *teacherRepository) GetByID(id string) (*models.Teacher, error) {
 	var teacher *models.Teacher
-	err := r.db.Select("id,nik,profile").First(&teacher, "id = ?", id).Error
+	err := r.db.First(&teacher, "id = ?", id).Error
 	if err != nil {
 		return nil, err
 	}

@@ -51,13 +51,9 @@ func (e *examRepository) GetExamByTeacherID(id string) (*models.Exam, error) {
 func (e *examRepository) DeleteExam(id string) (int64, error) {
 	var exam *models.Exam
 	result := e.db.Delete(&exam, id)
-
-	// Tangani jika ada error dari GORM (misal: koneksi putus)
 	if result.Error != nil {
 		return 0, result.Error
 	}
-
-	// Kembalikan jumlah baris yang dihapus dan error (yang akan nil jika sukses)
 	return result.RowsAffected, nil
 }
 

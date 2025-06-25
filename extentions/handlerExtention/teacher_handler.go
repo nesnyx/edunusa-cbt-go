@@ -28,7 +28,7 @@ func (h *teacherHandler) Insert(c *gin.Context) {
 		return
 	}
 	response := dtos.TeacherResponse{
-		ID:      teacher.ID.String(),
+		ID:      teacher.ID,
 		NIK:     teacher.NIK,
 		Profile: teacher.Profile,
 	}

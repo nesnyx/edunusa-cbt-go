@@ -35,7 +35,6 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(cfg.DBMaxOpenConns)
 	sqlDB.SetConnMaxLifetime(cfg.DBConnMaxLifetime)
 
-	// Menjalankan AutoMigrate
 	// err = migrateTables(DB)
 	// if err != nil {
 	// 	return nil, fmt.Errorf("database migration failed: %w", err)

@@ -32,7 +32,7 @@ func (h *subjectHandler) InsertSubject(c *gin.Context) {
 		return
 	}
 	response := dtos.SubjectResponse{
-		ID:          subject.Base.ID.String(),
+		ID:          subject.Base.ID,
 		SubjectName: subject.SubjectName,
 	}
 	c.JSON(http.StatusCreated, response)

@@ -15,7 +15,12 @@ const (
 	ContextCurrentUser = "currentUser"
 )
 
-// AuthMiddleware adalah middleware untuk otentikasi JWT
+type ClaimResult struct {
+	ID      string      `json:"id"`
+	Role    string      `json:"role"`
+	Profile interface{} `json:"profile"`
+}
+
 func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 	studentRepo := repositoryextention.NewStudentRepository(db)
 	teacherRepo := repositoryextention.NewTeacherRepository(db)
@@ -48,10 +53,6 @@ func validateAndSetUser(
 ) {
 	var user interface{}
 	var err error
-	type ClaimResult struct {
-		Profile interface{} `json:"data"`
-		Role    string      `json:"role"`
-	}
 
 	if claims.Role == "student" {
 		user, err = studentRepo.FindByID(claims.ID)
@@ -67,9 +68,10 @@ func validateAndSetUser(
 		return
 	}
 	dataUser := ClaimResult{
-		Profile: user,
+		ID:      claims.ID,
 		Role:    claims.Role,
+		Profile: user,
 	}
-	c.Set(ContextCurrentUser, dataUser)
+	c.Set("currentUser", dataUser)
 	c.Next()
 }

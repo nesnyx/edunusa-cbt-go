@@ -2,8 +2,6 @@ package dtos
 
 import (
 	"encoding/json"
-
-	"github.com/google/uuid"
 )
 
 // Student DTOs
@@ -14,7 +12,7 @@ type InsertStudentRequest struct {
 }
 
 type StudentResponse struct {
-	ID      uuid.UUID       `json:"id"`
+	ID      string          `json:"id"`
 	NIS     string          `json:"nis" binding:"required,min=3"`
 	Profile json.RawMessage `json:"profile" binding:"required"`
 }

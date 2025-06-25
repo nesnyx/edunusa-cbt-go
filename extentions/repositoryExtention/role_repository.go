@@ -10,7 +10,7 @@ type RoleRepositoryInterface interface {
 	Create(role *models.Role) (*models.Role, error)
 	GetAll() ([]models.Role, error)
 	GetByID(id string) (*models.Role, error)
-	GetByRoleName(name string) (*models.Role, error) // <-- TAMBAHKAN INI
+	GetByRoleName(name string) (*models.Role, error)
 	Update(role *models.Role) (*models.Role, error)
 	Delete(id string) error
 }

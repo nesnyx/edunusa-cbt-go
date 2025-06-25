@@ -46,7 +46,7 @@ func (s *service) InsertStudent(req *dtos.InsertStudentRequest) (*models.Student
 	setHasRole := &models.HasRole{
 		ID:        uuid.New(),
 		RoleID:    string(repositoryextention.StudentRole),
-		OwnerID:   student.ID.String(),
+		OwnerID:   student.ID,
 		OwnerType: "student",
 	}
 	hasRoleTeacher, errHasRole := s.hasRoleRepo.Create(setHasRole)

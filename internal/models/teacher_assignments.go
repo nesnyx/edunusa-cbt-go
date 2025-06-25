@@ -12,5 +12,5 @@ type TeacherAssignment struct {
 
 	// Teacher User    `gorm:"foreignKey:TeacherID" json:"teacher,omitempty"`
 	// Class   Class   `gorm:"foreignKey:ClassID" json:"class,omitempty"`
-	Subject Subject `gorm:"foreignKey:SubjectID" json:"subject,omitempty"`
+	// Subject Subject `gorm:"foreignKey:SubjectID" json:"subject,omitempty"`
 }

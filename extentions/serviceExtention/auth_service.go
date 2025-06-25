@@ -33,7 +33,7 @@ func (s *authService) LoginTeacher(nik string, password string) (string, error) 
 	if getTeacher.Password != password {
 		return "", ErrPasswordDoesnotMatch
 	}
-	generatedToken, err := utils.GenerateJWT(getTeacher.Base.ID.String(), "teacher")
+	generatedToken, err := utils.GenerateJWT(getTeacher.Base.ID, "teacher")
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +49,7 @@ func (s *authService) LoginStudent(nis string, password string) (string, error) 
 	if getStudent.Password != password {
 		return "", ErrPasswordDoesnotMatch
 	}
-	generatedToken, err := utils.GenerateJWT(getStudent.Base.ID.String(), "student")
+	generatedToken, err := utils.GenerateJWT(getStudent.Base.ID, "student")
 	if err != nil {
 		return "", err
 	}

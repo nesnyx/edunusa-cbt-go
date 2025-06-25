@@ -40,13 +40,14 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(middleware.SimpleLoggingMiddleware())
+
 	apiRoutes := router.Group("/v1")
 
 	// Exam
 	routes.SetupExamRoutes(apiRoutes, db)
 
-	// Exam Questions
-	// ####
+	// Exam Token Usage
+	routes.SetupExamTokenUsageRoutes(apiRoutes, db)
 
 	// Student
 	routeextention.SetupStudentRoutes(apiRoutes, dbExtention)
@@ -59,6 +60,9 @@ func main() {
 
 	// Auth
 	routeextention.SetupAuthRoutes(apiRoutes, dbExtention)
+
+	// Question
+	routes.SetupQuestionRoutes(apiRoutes, db)
 
 	logger.Info("Server starting on port " + cfg.APIServerPort)
 	if err := router.Run(":" + cfg.APIServerPort); err != nil {

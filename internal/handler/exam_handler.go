@@ -2,7 +2,10 @@ package handler
 
 import (
 	"cbt/internal/dtos"
+	"cbt/internal/middleware"
+	"cbt/internal/models"
 	"cbt/internal/service"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +25,10 @@ func (h *examHandler) InsertNewExam(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
-	exam, err := h.examService.Insert(&req)
+	currentUserData := c.MustGet("currentUser").(middleware.ClaimResult)
+	fmt.Print("current Data : ", currentUserData)
+
+	exam, err := h.examService.Insert(&req, currentUserData.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "error created new exam: " + err.Error()})
 		return
@@ -57,7 +63,8 @@ func (h *examHandler) FindByID(c *gin.Context) {
 }
 
 func (h *examHandler) FindByTeacherID(c *gin.Context) {
-	exam, err := h.examService.FindByTeacherID(c)
+	currentUser, _ := c.Get(middleware.ContextCurrentUser)
+	exam, err := h.examService.FindByTeacherID(currentUser.(middleware.ClaimResult).ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Exam Doesnt Exist"})
 		return
@@ -67,9 +74,13 @@ func (h *examHandler) FindByTeacherID(c *gin.Context) {
 		CreatedByTeacherID: exam.CreatedByTeacherID,
 		AccessTokenExam:    exam.AccessToken,
 		ExamTitle:          exam.ExamTitle,
+		Instruction:        exam.Instructions,
+		DurationMinutes:    exam.DurationMinutes,
+		StartDatetime:      exam.StartDatetime.Unix(),
+		EndDatetime:        exam.EndDatetime.Unix(),
+		Status:             models.ExamStatus(exam.Status),
 	}
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *examHandler) DeleteExam(c *gin.Context) {

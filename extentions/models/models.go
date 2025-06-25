@@ -9,16 +9,17 @@ import (
 )
 
 type Base struct {
-	ID        uuid.UUID `gorm:"type:varchar(255);primary_key" json:"id"`
+	ID        string    `gorm:"type:varchar(255);primary_key" json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Student struct {
 	Base
-	NIS      string          `gorm:"type:varchar(50);not null;unique" json:"nis"`
-	Password string          `gorm:"type:varchar(255);not null" json:"-"`
-	Profile  json.RawMessage `gorm:"type:json" json:"profile"`
+	NIS      string `gorm:"type:varchar(50);not null;unique" json:"nis"`
+	Password string `gorm:"type:varchar(255);not null" json:"-"`
+	// Hash     string          `gorm:"type:varchar(255);not null" json:"hash"`
+	Profile json.RawMessage `gorm:"type:json" json:"profile"`
 
 	Roles []HasRole `gorm:"polymorphic:Owner;polymorphicValue:student" json:"roles,omitempty"`
 }
@@ -28,15 +29,16 @@ type Teacher struct {
 	NIK      string          `gorm:"type:varchar(50);not null;unique" json:"nik"`
 	Password string          `gorm:"type:varchar(255);not null" json:"-"`
 	Profile  json.RawMessage `gorm:"type:json" json:"profile"`
+	// Hash     string          `gorm:"type:varchar(255);not null" json:"hash"`
 
 	Roles []HasRole `gorm:"polymorphic:Owner;polymorphicValue:teacher" json:"roles,omitempty"`
 }
 
 type Subject struct {
 	Base
-	SubjectName string    `gorm:"type:varchar(255);not null" json:"subject_name"`
-	Description string    `gorm:"type:text;null" json:"description,omitempty"`
-	ClassID     uuid.UUID `gorm:"type:varchar(255);not null" json:"class_id"`
+	SubjectName string `gorm:"type:varchar(255);not null" json:"subject_name"`
+	Description string `gorm:"type:text;null" json:"description,omitempty"`
+	ClassID     string `gorm:"type:varchar(255);not null" json:"class_id"`
 
 	Class Class `gorm:"foreignKey:ClassID" json:"class,omitempty"`
 }
@@ -68,8 +70,8 @@ type HasRole struct {
 }
 
 func (base *Base) BeforeCreate(tx *gorm.DB) (err error) {
-	if base.ID == uuid.Nil {
-		base.ID = uuid.New()
+	if base.ID == "" {
+		base.ID = uuid.New().String()
 	}
 	return
 }
