@@ -37,7 +37,7 @@ func (s *teacherService) Insert(req *dtos.TeacherRequest) (*models.Teacher, *mod
 	setHasRole := &models.HasRole{
 		ID:        uuid.New(),
 		RoleID:    string(repositoryextention.TeacherRole),
-		OwnerID:   teacher.ID.String(),
+		OwnerID:   teacher.ID,
 		OwnerType: "teacher",
 	}
 

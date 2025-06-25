@@ -5,8 +5,10 @@ import (
 	repositoryextention "cbt/extentions/repositoryExtention"
 	routeextention "cbt/extentions/routeExtention"
 	"cbt/internal/config"
+	"cbt/internal/middleware"
 	"cbt/internal/repository"
 	"cbt/internal/routes"
+	"cbt/pkg/logger"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +17,6 @@ import (
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 
-	// Main
 	cfgExtention, errCfgExtention := configExtention.LoadConfig("./extentions")
 	if errCfgExtention != nil {
 		log.Fatalf("Failed to load configuration: %v", errCfgExtention)
@@ -36,16 +37,17 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
+	router.Use(middleware.SimpleLoggingMiddleware())
+
 	apiRoutes := router.Group("/v1")
 
-	// Authentication
-	routes.SetupAuthRoutes(apiRoutes, db)
 	// Exam
 	routes.SetupExamRoutes(apiRoutes, db)
 
-	// Exam Questions
-	// ####
+	// Exam Token Usage
+	routes.SetupExamTokenUsageRoutes(apiRoutes, db)
 
 	// Student
 	routeextention.SetupStudentRoutes(apiRoutes, dbExtention)
@@ -56,6 +58,13 @@ func main() {
 	// Teacher
 	routeextention.SetupTeacherRoutes(apiRoutes, dbExtention)
 
+	// Auth
+	routeextention.SetupAuthRoutes(apiRoutes, dbExtention)
+
+	// Question
+	routes.SetupQuestionRoutes(apiRoutes, db)
+
+	logger.Info("Server starting on port " + cfg.APIServerPort)
 	if err := router.Run(":" + cfg.APIServerPort); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}

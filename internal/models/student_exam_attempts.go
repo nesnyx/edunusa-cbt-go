@@ -1,7 +1,7 @@
 package models
 
 import (
-	"cbt/extentions/models"
+	models "cbt/extentions/models"
 	"encoding/json"
 	"time"
 

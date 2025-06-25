@@ -59,7 +59,7 @@ func (s *roleService) GetAll() ([]models.Role, error) {
 }
 
 func (s *roleService) Update(req *dtos.RoleRequest) (*models.Role, error) {
-	if req.ID.String() == "" {
+	if req.ID == "" {
 		return nil, errors.New("role ID is required for update")
 	}
 	req.Name = strings.TrimSpace(req.Name)
@@ -67,7 +67,7 @@ func (s *roleService) Update(req *dtos.RoleRequest) (*models.Role, error) {
 		return nil, ErrRoleNameRequired
 	}
 
-	_, err := s.repo.GetByID(req.ID.String())
+	_, err := s.repo.GetByID(req.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrRoleNotFound

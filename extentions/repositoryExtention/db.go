@@ -2,7 +2,6 @@ package repositoryextention
 
 import (
 	"cbt/extentions/configExtention"
-	"cbt/extentions/models"
 	"fmt"
 	"log"
 
@@ -46,27 +45,27 @@ func InitDBExtention(cfg *configExtention.Config) (*gorm.DB, error) {
 
 	// Menjalankan AutoMigrate
 
-	err = migrateTables(DB)
-	if err != nil {
-		return nil, fmt.Errorf("database migration failed: %w", err)
-	}
-	log.Println("Database migration completed successfully.")
+	// err = migrateTables(DB)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("database migration failed: %w", err)
+	// }
+	// log.Println("Database migration completed successfully.")
 
 	return DB, nil
 }
 
-func migrateTables(db *gorm.DB) error {
-	err := db.AutoMigrate(
-		&models.Class{},
-		&models.Role{},
-		&models.Student{},
-		&models.Teacher{},
-		&models.Subject{},
-		&models.HasRole{},
-	)
-	if err != nil {
-		log.Printf("Error during migration: %v\n", err)
-		return err
-	}
-	return nil
-}
+// func migrateTables(db *gorm.DB) error {
+// 	err := db.AutoMigrate(
+// 		&models.Class{},
+// 		&models.Role{},
+// 		&models.Student{},
+// 		&models.Teacher{},
+// 		&models.Subject{},
+// 		&models.HasRole{},
+// 	)
+// 	if err != nil {
+// 		log.Printf("Error during migration: %v\n", err)
+// 		return err
+// 	}
+// 	return nil
+// }

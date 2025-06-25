@@ -4,9 +4,6 @@ import (
 	"cbt/extentions/dtos"
 	"cbt/extentions/models"
 	repositoryextention "cbt/extentions/repositoryExtention"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 type SubjectServiceInterface interface {
@@ -38,11 +35,7 @@ func (s *subjectService) Insert(req *dtos.SubjectRequest) (*models.Subject, erro
 		return nil, errExistingClass
 	}
 	subject := &models.Subject{
-		Base: models.Base{
-			ID:        uuid.New(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+
 		SubjectName: req.SubjectName,
 		Description: req.Description,
 		ClassID:     checking_existing_class.ID,

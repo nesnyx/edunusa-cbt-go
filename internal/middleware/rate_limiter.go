@@ -8,9 +8,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-var limiter = rate.NewLimiter(1, 5)
-
-func RateLimiter(c *gin.Context) {
+func RateLimiter(c *gin.Context, limiter *rate.Limiter) {
 
 	if !limiter.Allow() {
 		c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many requests (DDoS detected)"})
@@ -38,7 +36,7 @@ func (i *IpLimiter) GetLimiter(ip string) *rate.Limiter {
 
 	limiter, exists := i.limiters[ip]
 	if !exists {
-		limiter = rate.NewLimiter(1, 5) // 1 request per second dengan burst 5
+		limiter = rate.NewLimiter(1, 5)
 		i.limiters[ip] = limiter
 	}
 	return limiter

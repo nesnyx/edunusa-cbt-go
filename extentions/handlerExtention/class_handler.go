@@ -28,7 +28,7 @@ func (h *classHandler) Insert(c *gin.Context) {
 		return
 	}
 	response := dtos.ClassResponse{
-		ID:          class.Base.ID.String(),
+		ID:          class.Base.ID,
 		GradeLevel:  class.GradeLevel,
 		Description: class.Description,
 		ClassName:   class.ClassName,
@@ -45,10 +45,9 @@ func (h *classHandler) FindAll(c *gin.Context) {
 	c.JSON(http.StatusOK, class)
 }
 
-
-func (h *classHandler) FindByID(c *gin.Context){
+func (h *classHandler) FindByID(c *gin.Context) {
 	id := c.Param("id")
-	class , err := h.classService.FindByID(id)
+	class, err := h.classService.FindByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
