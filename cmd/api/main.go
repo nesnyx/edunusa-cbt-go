@@ -1,9 +1,6 @@
 package main
 
 import (
-	"cbt/extentions/configExtention"
-	repositoryextention "cbt/extentions/repositoryExtention"
-	routeextention "cbt/extentions/routeExtention"
 	"cbt/internal/config"
 	"cbt/internal/middleware"
 	"cbt/internal/repository"
@@ -11,20 +8,12 @@ import (
 	"cbt/pkg/logger"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
-
-	cfgExtention, errCfgExtention := configExtention.LoadConfig("./extentions")
-	if errCfgExtention != nil {
-		log.Fatalf("Failed to load configuration: %v", errCfgExtention)
-	}
-	dbExtention, errExtention := repositoryextention.InitDBExtention(cfgExtention)
-	if errExtention != nil {
-		log.Fatalf("Failed to initialize database: %v", errExtention)
-	}
 
 	cfg, err := config.LoadConfig("./configs")
 	if err != nil {
@@ -40,7 +29,13 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(middleware.SimpleLoggingMiddleware())
-
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	apiRoutes := router.Group("/v1")
 
 	// Exam
@@ -50,19 +45,31 @@ func main() {
 	routes.SetupExamTokenUsageRoutes(apiRoutes, db)
 
 	// Student
-	routeextention.SetupStudentRoutes(apiRoutes, dbExtention)
+	routes.SetupStudentRoutes(apiRoutes, db)
 
 	// Subject
-	routeextention.SetupSubjectAndClassRoutes(apiRoutes, dbExtention)
+	routes.SetupSubjectAndClassRoutes(apiRoutes, db)
 
 	// Teacher
-	routeextention.SetupTeacherRoutes(apiRoutes, dbExtention)
+	routes.SetupTeacherRoutes(apiRoutes, db)
 
 	// Auth
-	routeextention.SetupAuthRoutes(apiRoutes, dbExtention)
+	routes.SetupAuthRoutes(apiRoutes, db)
 
 	// Question
 	routes.SetupQuestionRoutes(apiRoutes, db)
+
+	// Question Bank
+	routes.SetupQuestionBankRoutes(apiRoutes, db)
+
+	// Exam Question
+	routes.SetupExamQuestionRoutes(apiRoutes, db)
+
+	// Student Answer
+	routes.SetupStudentAnswerRoutes(apiRoutes, db)
+
+	// Student Exam Attempt
+	routes.SetupStudentExamAttemptRoutes(apiRoutes, db)
 
 	logger.Info("Server starting on port " + cfg.APIServerPort)
 	if err := router.Run(":" + cfg.APIServerPort); err != nil {

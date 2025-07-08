@@ -1,12 +1,10 @@
 package models
 
-import "github.com/google/uuid"
-
 // ExamQuestion merepresentasikan tabel 'exam_questions' (junction table)
 type ExamQuestion struct {
 	Base
-	ExamID         uuid.UUID       `gorm:"type:varchar(255);not null;index:idx_exam_question,unique" json:"exam_id"`
-	QuestionID     uuid.UUID       `gorm:"type:varchar(255);not null;index:idx_exam_question,unique" json:"question_id"`
+	ExamID         string          `gorm:"type:varchar(255);not null;index:idx_exam_question,unique" json:"exam_id"`
+	QuestionID     string          `gorm:"type:varchar(255);not null;index:idx_exam_question,unique" json:"question_id"`
 	DisplayOrder   int             `gorm:"not null" json:"display_order"`
 	PointsOverride float64         `gorm:"null" json:"points_override,omitempty"` // Jika poin soal ini beda dari default
 	Exam           Exam            `gorm:"foreignKey:ExamID;references:ID" json:"exam,omitempty"`

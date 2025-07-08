@@ -8,7 +8,7 @@ import (
 )
 
 type QuestionServiceInterface interface {
-	GetByTeacher(teacher string) (*models.Question, error)
+	GetByTeacher(teacher string) ([]*dtos.QuestionResponse, error)
 	CreateQuestion(req *dtos.QuestionRequest, questionBank string, teacher string) (*models.Question, error)
 	DeleteQuestion(id string) (bool, error)
 	UpdateQuestion(req *dtos.QuestionRequest, teacher string, id string) (bool, error)
@@ -42,8 +42,24 @@ func (s *questionService) DeleteQuestion(id string) (bool, error) {
 	return s.questionRepository.DeleteQuestion(id)
 }
 
-func (s *questionService) GetByTeacher(teacher string) (*models.Question, error) {
-	return s.questionRepository.GetByTeacher(teacher)
+func (s *questionService) GetByTeacher(teacher string) ([]*dtos.QuestionResponse, error) {
+	var results []*dtos.QuestionResponse
+	question, err := s.questionRepository.GetByTeacher(teacher)
+	if err != nil {
+		return nil, err
+	}
+	for _, q := range question {
+		results = append(results, &dtos.QuestionResponse{
+			ID:           q.ID,
+			QuestionText: q.QuestionText,
+			QuestionType: string(q.QuestionType),
+			Points:       q.Points,
+			Metadata:     q.Metadata,
+			BankName:     q.QuestionBank.BankName,
+			CreatedByNIK: q.CreatedByTeacher.NIK,
+		})
+	}
+	return results, nil
 }
 
 func (s *questionService) UpdateQuestion(req *dtos.QuestionRequest, teacher string, id string) (bool, error) {

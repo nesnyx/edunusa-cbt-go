@@ -1,7 +1,6 @@
 package models
 
 import (
-	models "cbt/extentions/models"
 	"encoding/json"
 )
 
@@ -15,7 +14,7 @@ type Question struct {
 	Metadata           json.RawMessage `gorm:"null" json:"metadata,omitempty"` // Untuk opsi MCQ, kunci jawaban, dll.
 	CreatedByTeacherID string          `gorm:"type:varchar(255);not null" json:"created_by_teacher_id"`
 	QuestionBank       QuestionBank    `gorm:"foreignKey:QuestionBankID;references:ID" json:"question_bank,omitempty"`
-	CreatedByTeacher   models.Teacher  `gorm:"foreignKey:CreatedByTeacherID;references:ID" json:"created_by_teacher,omitempty"`
+	CreatedByTeacher   Teacher         `gorm:"foreignKey:CreatedByTeacherID;references:ID" json:"created_by_teacher,omitempty"`
 	ExamQuestions      []ExamQuestion  `gorm:"foreignKey:QuestionID" json:"-"` // Relasi Many-to-Many dengan Exam melalui ExamQuestion
 }
 

@@ -7,10 +7,11 @@ import (
 )
 
 type QuestionBankRepositoryInterface interface {
-	GetByTeacher(teacher string) (*models.QuestionBank, error)
+	GetByTeacher(teacher string) ([]*models.QuestionBank, error)
+	GetBySubject(subject string) ([]*models.QuestionBank, error)
 	Create(questionBank *models.QuestionBank) (*models.QuestionBank, error)
 	Delete(id string) (bool, error)
-	Update(questionBank *models.QuestionBank) (bool, error)
+	Update(bankName string, description string, id string, teacher string) (bool, error)
 }
 
 type questionBankRepository struct {
@@ -38,20 +39,32 @@ func (r *questionBankRepository) Delete(id string) (bool, error) {
 	return true, nil
 }
 
-func (r *questionBankRepository) GetByTeacher(teacher string) (*models.QuestionBank, error) {
-	var questionBank *models.QuestionBank
-	err := r.db.Find(&questionBank, "created_by_teacher_id = ?", teacher).Error
+func (r *questionBankRepository) GetByTeacher(teacher string) ([]*models.QuestionBank, error) {
+	var questionBank []*models.QuestionBank
+	err := r.db.
+		Preload("Subject").
+		Preload("CreatedByTeacher").
+		Find(&questionBank, "created_by_teacher_id = ?", teacher).Error
 	if err != nil {
 		return nil, err
 	}
 	return questionBank, nil
 }
 
-func (r *questionBankRepository) Update(questionBank *models.QuestionBank) (bool, error) {
-	query := "UPDATE question_bank SET bank_name = ?, description = ? WHERE created_by_teacher_id = ?"
-	err := r.db.Exec(query, questionBank.BankName, questionBank.Description, questionBank.CreatedByTeacherID).Error
+func (r *questionBankRepository) Update(bankName string, description string, id string, teacher string) (bool, error) {
+	query := "UPDATE exam_engine.question_bank SET bank_name = ?, description = ? WHERE created_by_teacher_id = ? AND id = ?"
+	err := r.db.Exec(query, bankName, description, teacher, id).Error
 	if err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+func (r *questionBankRepository) GetBySubject(subject string) ([]*models.QuestionBank, error) {
+	var questionBank []*models.QuestionBank
+	err := r.db.Find(&questionBank, "subject_id = ?", subject).Error
+	if err != nil {
+		return nil, err
+	}
+	return questionBank, nil
 }

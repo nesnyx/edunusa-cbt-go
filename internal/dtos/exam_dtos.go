@@ -18,8 +18,9 @@ type ExamRequestUpdate struct {
 	ExamTitle       string `json:"exam_title" binding:"required"`
 	Instructions    string `json:"instructions" binding:"required"`
 	ClassID         string `json:"class_id" binding:"required"`
-	StartDatetime   int    `json:"start_datetime" binding:"required"`
-	EndDatetime     int    `json:"end_datetime" binding:"required"`
+	SubjectID       string `json:"subject_id" binding:"required"`
+	StartDatetime   int64  `json:"start_datetime" binding:"required"`
+	EndDatetime     int64  `json:"end_datetime" binding:"required"`
 	DurationMinutes int    `json:"duration_minutes" binding:"required"`
 }
 
@@ -36,13 +37,15 @@ type ExamRequiestByID struct {
 }
 
 type ExamResponse struct {
-	ID                 uuid.UUID `json:"id"`
-	CreatedByTeacherID string    `json:"created_by_teacher_id"`
-	AccessTokenExam    string    `json:"access_token_exam"`
-	ExamTitle          string    `json:"exam_title"`
-	Instruction        string    `json:"instruction"`
-	DurationMinutes    int       `json:"duration_minutes"`
-	StartDatetime      int64     `json:"start_datetime"`
-	EndDatetime        int64     `json:"end_datetime"`
-	Status             any       `json:"status"`
+	ID                 string `json:"id"`
+	CreatedByTeacherID string `json:"created_by_teacher_id"`
+	AccessTokenExam    string `json:"access_token_exam"`
+	ExamTitle          string `json:"exam_title"`
+	Instruction        string `json:"instruction"`
+	DurationMinutes    int    `json:"duration_minutes"`
+	Class              string `json:"class"`
+	Subject            string `json:"subject"`
+	StartDatetime      int64  `json:"start_datetime"`
+	EndDatetime        int64  `json:"end_datetime"`
+	Status             any    `json:"status"`
 }
