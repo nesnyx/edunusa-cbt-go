@@ -7,11 +7,10 @@ import (
 )
 
 type QuestionRepositoryInterface interface {
-	GetByTeacher(teacher string) (*models.Question, error)
+	GetByTeacher(teacher string) ([]*models.Question, error)
 	CreateQuestion(question *models.Question) (*models.Question, error)
 	DeleteQuestion(id string) (bool, error)
 	UpdateQuestion(question *models.Question, teacher string, id string) (bool, error)
-	// GetByID(id string) (*models.Question, error)
 }
 
 type questionRepository struct {
@@ -40,9 +39,18 @@ func (r *questionRepository) DeleteQuestion(id string) (bool, error) {
 
 }
 
-func (r *questionRepository) GetByTeacher(teacher string) (*models.Question, error) {
-	var question *models.Question
-	err := r.db.Find(&question, "created_by_teacher_id = ?", teacher).Error
+func (r *questionRepository) GetByTeacher(teacher string) ([]*models.Question, error) {
+	var question []*models.Question
+	err := r.db.
+		Select("id", "question_text", "question_type", "points", "question_bank_id", "metadata", "created_by_teacher_id").
+		Preload("QuestionBank", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "bank_name") // pilih kolom pentings
+		}).
+		Preload("CreatedByTeacher", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "nik") // atau bisa ambil name jika relasi ke profile
+		}).
+		Where("created_by_teacher_id = ?", teacher).
+		Find(&question).Error
 	if err != nil {
 		return nil, err
 	}

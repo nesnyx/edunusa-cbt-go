@@ -47,13 +47,15 @@ func InitDB(cfg *config.Config) (*gorm.DB, error) {
 // migrateTables menjalankan GORM AutoMigrate untuk semua model
 // func migrateTables(db *gorm.DB) error {
 // 	err := db.AutoMigrate(
-// 		&models.QuestionBank{},       // Tergantung Subject, User (Teacher)
-// 		&models.Question{},           // Tergantung QuestionBank, User (Teacher)
-// 		&models.Exam{},               // Tergantung Subject, Class, User (Teacher)
-// 		&models.ExamQuestion{},       // Tergantung Exam, Question
-// 		&models.StudentExamAttempt{}, // Tergantung User (Student), Exam, User (Teacher for grading)
-// 		&models.StudentAnswer{},      // Tergantung StudentExamAttempt, ExamQuestion
-// 		&models.ExamTokenUsage{},     // Tergantung User (Student), Exam
+// 		// &models.QuestionBank{},       // Tergantung Subject, User (Teacher)
+// 		// &models.Question{},           // Tergantung QuestionBank, User (Teacher)
+// 		// &models.Exam{},               // Tergantung Subject, Class, User (Teacher)
+// 		// &models.ExamQuestion{},       // Tergantung Exam, Question
+// 		// &models.StudentExamAttempt{}, // Tergantung User (Student), Exam, User (Teacher for grading)
+// 		&models.StudentAnswer{}, // Tergantung StudentExamAttempt, ExamQuestion
+// 		// &models.ExamTokenUsage{},     // Tergantung User (Student), Exam
+// 		// &models.Class{},
+// 		// &models.Subject{},
 // 	)
 // 	if err != nil {
 // 		log.Printf("Error during migration: %v\n", err)

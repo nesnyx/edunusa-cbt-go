@@ -8,10 +8,10 @@ import (
 
 type ExamRepository interface {
 	CreateExam(exam *models.Exam) (*models.Exam, error)
-	DeleteExam(id string) (int64, error)
+	DeleteExam(id string) (bool, error)
 	GetExamByID(id string) (*models.Exam, error)
-	GetExamByTeacherID(id string) (*models.Exam, error)
-	Update(id string, instructions string, class_id string, duration_minutes int) (bool, error)
+	GetExamByTeacherID(id string) ([]*models.Exam, error)
+	Update(id string, exam_title string, instructions string, class_id string, subject_id string, duration_minutes int) (bool, error)
 }
 
 type examRepository struct {
@@ -32,34 +32,50 @@ func (e *examRepository) CreateExam(exam *models.Exam) (*models.Exam, error) {
 
 func (e *examRepository) GetExamByID(id string) (*models.Exam, error) {
 	var exam *models.Exam
-	err := e.db.First(&exam, "id = ?", id).Error
+	err := e.db.
+		Preload("Teacher").
+		Preload("Subject").
+		Preload("Class").
+		Preload("ExamQuestions").
+		Preload("ExamQuestions.Question").
+		Preload("StudentAttempts").
+		Preload("StudentAttempts.Student").
+		First(&exam, "id = ?", id).Error
+
 	if err != nil {
 		return nil, err
 	}
 	return exam, nil
 }
 
-func (e *examRepository) GetExamByTeacherID(id string) (*models.Exam, error) {
-	var exam *models.Exam
-	err := e.db.First(&exam, "created_by_teacher_id = ?", id).Error
+func (e *examRepository) GetExamByTeacherID(id string) ([]*models.Exam, error) {
+	var exam []*models.Exam
+	err := e.db.
+		Preload("Teacher").                // Load teacher yang membuat exam
+		Preload("Subject").                // Load subject exam
+		Preload("Class").                  // Load class exam
+		Preload("ExamQuestions").          // Load semua soal di exam
+		Preload("ExamQuestions.Question"). // Load detail question
+		Find(&exam, "created_by_teacher_id = ?", id).Error
+
 	if err != nil {
 		return nil, err
 	}
 	return exam, nil
 }
 
-func (e *examRepository) DeleteExam(id string) (int64, error) {
+func (e *examRepository) DeleteExam(id string) (bool, error) {
 	var exam *models.Exam
-	result := e.db.Delete(&exam, id)
-	if result.Error != nil {
-		return 0, result.Error
+	err := e.db.Where("id = ?", id).Delete(&exam).Error
+	if err != nil {
+		return false, err
 	}
-	return result.RowsAffected, nil
+	return true, nil
 }
 
-func (e *examRepository) Update(id string, instructions string, class_id string, duration_minutes int) (bool, error) {
-	query := "UPDATE exam SET exam_title = ?, instructions = ?, class_id = ? , duration_minutes = ? WHERE id = ?"
-	err := e.db.Exec(query, instructions, class_id, duration_minutes, id).Error
+func (e *examRepository) Update(id string, exam_title string, instructions string, class_id string, subject_id string, duration_minutes int) (bool, error) {
+	query := "UPDATE exam_engine.exam SET exam_title = ?, instructions = ?, class_id = ? ,subject_id =? , duration_minutes = ? WHERE id = ?"
+	err := e.db.Exec(query, exam_title, instructions, class_id, subject_id, duration_minutes, id).Error
 	if err != nil {
 		return false, err
 	}

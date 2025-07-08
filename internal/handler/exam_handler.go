@@ -64,23 +64,32 @@ func (h *examHandler) FindByID(c *gin.Context) {
 
 func (h *examHandler) FindByTeacherID(c *gin.Context) {
 	currentUser, _ := c.Get(middleware.ContextCurrentUser)
-	exam, err := h.examService.FindByTeacherID(currentUser.(middleware.ClaimResult).ID)
+	exams, err := h.examService.FindByTeacherID(currentUser.(middleware.ClaimResult).ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Exam Doesnt Exist"})
 		return
 	}
-	response := dtos.ExamResponse{
-		ID:                 exam.ID,
-		CreatedByTeacherID: exam.CreatedByTeacherID,
-		AccessTokenExam:    exam.AccessToken,
-		ExamTitle:          exam.ExamTitle,
-		Instruction:        exam.Instructions,
-		DurationMinutes:    exam.DurationMinutes,
-		StartDatetime:      exam.StartDatetime.Unix(),
-		EndDatetime:        exam.EndDatetime.Unix(),
-		Status:             models.ExamStatus(exam.Status),
+
+	// Convert array of exams to array of responses
+	var responses []dtos.ExamResponse
+	for _, exam := range exams {
+		response := dtos.ExamResponse{
+			ID:                 exam.ID,
+			CreatedByTeacherID: exam.CreatedByTeacherID,
+			AccessTokenExam:    exam.AccessToken,
+			ExamTitle:          exam.ExamTitle,
+			Instruction:        exam.Instructions,
+			DurationMinutes:    exam.DurationMinutes,
+			Class:              exam.Class.ClassName,
+			Subject:            exam.Subject.SubjectName,
+			StartDatetime:      exam.StartDatetime.Unix(),
+			EndDatetime:        exam.EndDatetime.Unix(),
+			Status:             models.ExamStatus(exam.Status),
+		}
+		responses = append(responses, response)
 	}
-	c.JSON(http.StatusOK, response)
+
+	c.JSON(http.StatusOK, gin.H{"data": responses})
 }
 
 func (h *examHandler) DeleteExam(c *gin.Context) {
@@ -104,7 +113,7 @@ func (h *examHandler) UpdateExam(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
-	exam, err := h.examService.Update(id, req.Instructions, req.ClassID, req.DurationMinutes)
+	exam, err := h.examService.Update(id, req.ExamTitle, req.Instructions, req.ClassID, req.SubjectID, req.DurationMinutes)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "error created new exam: " + err.Error()})
 		return

@@ -67,5 +67,5 @@ func (h *questionHandler) GetByTeacher(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, question)
+	c.JSON(200, gin.H{"data": question})
 }

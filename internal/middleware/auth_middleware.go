@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	repositoryextention "cbt/extentions/repositoryExtention"
+	"cbt/internal/repository"
 	"cbt/pkg/utils"
 	"net/http"
 	"strings"
@@ -22,8 +22,8 @@ type ClaimResult struct {
 }
 
 func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
-	studentRepo := repositoryextention.NewStudentRepository(db)
-	teacherRepo := repositoryextention.NewTeacherRepository(db)
+	studentRepo := repository.NewStudentRepository(db)
+	teacherRepo := repository.NewTeacherRepository(db)
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -48,8 +48,8 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 func validateAndSetUser(
 	c *gin.Context,
 	claims *utils.MyCustomClaims,
-	studentRepo repositoryextention.StudentRepositoryInterface, // Gunakan interface jika ada
-	teacherRepo repositoryextention.TeacherRepositoryInterface, // Gunakan interface jika ada
+	studentRepo repository.StudentRepositoryInterface, // Gunakan interface jika ada
+	teacherRepo repository.TeacherRepositoryInterface, // Gunakan interface jika ada
 ) {
 	var user interface{}
 	var err error
