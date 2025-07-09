@@ -8,7 +8,7 @@ import (
 type ExamTokenUsageServiceInterface interface {
 	Create(token string, exam string, student string) (*models.ExamTokenUsage, error)
 	Delete(id string) (bool, error)
-	FindByStudent(id string) (*models.ExamTokenUsage, error)
+	FindByStudentAndExam(student string, examId string) (*models.ExamTokenUsage, error)
 }
 
 type examTokenService struct {
@@ -42,8 +42,8 @@ func (s *examTokenService) Delete(id string) (bool, error) {
 	return delete, nil
 }
 
-func (s *examTokenService) FindByStudent(id string) (*models.ExamTokenUsage, error) {
-	exam, err := s.examTokenUsageRepo.GetByStudent(id)
+func (s *examTokenService) FindByStudentAndExam(student string, examId string) (*models.ExamTokenUsage, error) {
+	exam, err := s.examTokenUsageRepo.GetByStudentAndExam(student, examId)
 	if err != nil {
 		return nil, err
 	}

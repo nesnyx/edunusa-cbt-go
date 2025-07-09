@@ -84,7 +84,7 @@ func (h *examHandler) FindByTeacherID(c *gin.Context) {
 			Subject:            exam.Subject.SubjectName,
 			StartDatetime:      exam.StartDatetime.Unix(),
 			EndDatetime:        exam.EndDatetime.Unix(),
-			Status:             models.ExamStatus(exam.Status),
+			Status:             models.AttemptStatusCompleted(exam.Status),
 		}
 		responses = append(responses, response)
 	}

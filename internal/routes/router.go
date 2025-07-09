@@ -68,15 +68,31 @@ func SetupExamQuestionRoutes(routerGroup *gin.RouterGroup, db *gorm.DB) {
 	}
 }
 
+// student session
 func SetupStudentExamAttemptRoutes(routerGroup *gin.RouterGroup, db *gorm.DB) {
 	examTokenUsageRepo := repository.NewExamTokenUsageRepository(db)
 	examTokenUsageService := service.NewExamTokenUsage(examTokenUsageRepo)
+	examRepo := repository.NewExamRepository(db)
 	studentExamAttemptRepo := repository.NewStudentExamAttemptRepository(db)
-	studentExamAttemptService := service.NewStudentExamAttemptService(studentExamAttemptRepo)
+
+	studentExamAttemptService := service.NewStudentExamAttemptService(
+		studentExamAttemptRepo,
+		examRepo,
+		examTokenUsageRepo,
+	)
+
 	studentExamAttemptHandler := handler.NewStudentExamAttemptHandler(studentExamAttemptService, examTokenUsageService)
-	studenExamAttemptRoutes := routerGroup.Group("/exams/students", middleware.AuthMiddleware(db), middleware.CheckingTokenExam(db))
+
+	// Use enhanced middleware
+	studentExamAttemptRoutes := routerGroup.Group("/exams/students",
+		middleware.AuthMiddleware(db),
+		middleware.StudentOnlyMiddleware(),
+		middleware.EnhancedExamSessionMiddleware(db),
+	)
 	{
-		studenExamAttemptRoutes.POST("/start", studentExamAttemptHandler.StartExamination)
+		studentExamAttemptRoutes.POST("/start", studentExamAttemptHandler.StartExamination)
+		studentExamAttemptRoutes.GET("/progress/:attemptId", studentExamAttemptHandler.GetExamProgress)
+		studentExamAttemptRoutes.POST("/finish/:attemptId", studentExamAttemptHandler.FinishExam)
 	}
 }
 
@@ -84,7 +100,7 @@ func SetupStudentAnswerRoutes(routerGroup *gin.RouterGroup, db *gorm.DB) {
 	studentAnswerRepo := repository.NewStudentAnswerRepository(db)
 	studentAnswerService := service.NewStudentAnswerService(studentAnswerRepo)
 	studentAnswerHandler := handler.NewStudentAnswerHandler(studentAnswerService)
-	studentAnswerRoutes := routerGroup.Group("/students/exam", middleware.AuthMiddleware(db))
+	studentAnswerRoutes := routerGroup.Group("/students/exam", middleware.AuthMiddleware(db), middleware.StudentOnlyMiddleware())
 	{
 		studentAnswerRoutes.POST("/answer", studentAnswerHandler.InsertOrUpdate)
 		studentAnswerRoutes.GET("/get-by-answer", studentAnswerHandler.GetByQuestionAndStudentAttempt)

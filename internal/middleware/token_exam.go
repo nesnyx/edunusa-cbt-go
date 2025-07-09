@@ -16,6 +16,7 @@ func CheckingTokenExam(db *gorm.DB) gin.HandlerFunc {
 	examRepo := repository.NewExamRepository(db)
 
 	return func(c *gin.Context) {
+		examID := c.Query("examId")
 		currentUser, exists := c.Get(ContextCurrentUser)
 		if !exists {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
@@ -25,11 +26,11 @@ func CheckingTokenExam(db *gorm.DB) gin.HandlerFunc {
 		studentID := currentUser.(ClaimResult).ID
 
 		// 1. Ambil token usage berdasarkan student
-		checkingToken, err := tokenUsageRepo.GetByStudent(studentID)
+		checkingToken, err := tokenUsageRepo.GetByStudentAndExam(studentID, examID)
 
 		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 			// 2. Jika token belum tercatat (first time masuk), ambil exam_id dari query atau body
-			examID := c.Query("examId") // atau dari body/params sesuai implementasi kamu
+			// atau dari body/params sesuai implementasi kamu
 			if examID == "" {
 				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "examId is required"})
 				return
