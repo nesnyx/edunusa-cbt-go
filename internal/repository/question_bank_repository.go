@@ -32,7 +32,7 @@ func (r *questionBankRepository) Create(questionBank *models.QuestionBank) (*mod
 
 func (r *questionBankRepository) Delete(id string) (bool, error) {
 	var questionBank *models.QuestionBank
-	err := r.db.Delete(&questionBank, id).Error
+	err := r.db.Delete(&questionBank, "id = ?", id).Error
 	if err != nil {
 		return false, err
 	}

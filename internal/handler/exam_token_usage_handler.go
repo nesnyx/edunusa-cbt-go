@@ -46,7 +46,8 @@ func (h *examTokenUsageHandler) Delete(c *gin.Context) {
 
 func (h *examTokenUsageHandler) FindByStudent(c *gin.Context) {
 	id := c.Param("id")
-	exam, err := h.examTokenUsageService.FindByStudent(id)
+	examId := c.Param("examId")
+	exam, err := h.examTokenUsageService.FindByStudentAndExam(id, examId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "error delete exam: " + err.Error()})
 		return

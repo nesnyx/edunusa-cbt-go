@@ -4,34 +4,34 @@ import (
 	"time"
 )
 
-type ExamStatus string
+type AttemptStatusCompleted string
 
 const (
-	ExamStatusDraft     ExamStatus = "draft"
-	ExamStatusPublished ExamStatus = "published"
-	ExamStatusOngoing   ExamStatus = "ongoing"
-	ExamStatusCompleted ExamStatus = "completed"
-	ExamStatusArchived  ExamStatus = "archived"
+	ExamStatusDraft     AttemptStatusCompleted = "draft"
+	ExamStatusPublished AttemptStatusCompleted = "published"
+	ExamStatusOngoing   AttemptStatusCompleted = "ongoing"
+	ExamStatusCompleted AttemptStatusCompleted = "completed"
+	ExamStatusArchived  AttemptStatusCompleted = "archived"
 )
 
 // Exam merepresentasikan tabel 'exams' (dengan penambahan)
 type Exam struct {
 	Base
-	ExamTitle             string     `gorm:"type:varchar(255);not null" json:"exam_title"`
-	SubjectID             string     `gorm:"type:varchar(255);not null" json:"subject_id"`
-	ClassID               string     `gorm:"type:varchar(255);not null" json:"class_id"`
-	CreatedByTeacherID    string     `gorm:"type:varchar(255);not null" json:"created_by_teacher_id"`
-	Instructions          string     `gorm:"type:text;null" json:"instructions,omitempty"`
-	StartDatetime         time.Time  `gorm:"not null" json:"start_datetime"`
-	EndDatetime           time.Time  `gorm:"not null" json:"end_datetime"`
-	DurationMinutes       int        `gorm:"not null" json:"duration_minutes"`
-	AccessToken           string     `gorm:"type:varchar(50);uniqueIndex;not null" json:"access_token"`
-	AccessTokenValidUntil *time.Time `gorm:"null" json:"access_token_valid_until,omitempty"` // TAMBAHAN: Pointer agar bisa null
-	Status                ExamStatus `gorm:"type:varchar(50);not null;default:'draft'" json:"status"`
-	RandomizeQuestions    bool       `gorm:"default:false" json:"randomize_questions"`
-	TotalPoints           float64    `gorm:"null" json:"total_points,omitempty"`
-	PassingScore          float64    `gorm:"null" json:"passing_score,omitempty"`
-	ShowAnswersAfterExam  bool       `gorm:"default:false" json:"show_answers_after_exam"`
+	ExamTitle             string                 `gorm:"type:varchar(255);not null" json:"exam_title"`
+	SubjectID             string                 `gorm:"type:varchar(255);not null" json:"subject_id"`
+	ClassID               string                 `gorm:"type:varchar(255);not null" json:"class_id"`
+	CreatedByTeacherID    string                 `gorm:"type:varchar(255);not null" json:"created_by_teacher_id"`
+	Instructions          string                 `gorm:"type:text;null" json:"instructions,omitempty"`
+	StartDatetime         time.Time              `gorm:"not null" json:"start_datetime"`
+	EndDatetime           time.Time              `gorm:"not null" json:"end_datetime"`
+	DurationMinutes       int                    `gorm:"not null" json:"duration_minutes"`
+	AccessToken           string                 `gorm:"type:varchar(50);uniqueIndex;not null" json:"access_token"`
+	AccessTokenValidUntil *time.Time             `gorm:"null" json:"access_token_valid_until,omitempty"` // TAMBAHAN: Pointer agar bisa null
+	Status                AttemptStatusCompleted `gorm:"type:varchar(50);not null;default:'draft'" json:"status"`
+	RandomizeQuestions    bool                   `gorm:"default:false" json:"randomize_questions"`
+	TotalPoints           float64                `gorm:"null" json:"total_points,omitempty"`
+	PassingScore          float64                `gorm:"null" json:"passing_score,omitempty"`
+	ShowAnswersAfterExam  bool                   `gorm:"default:false" json:"show_answers_after_exam"`
 
 	// Teacher         models.Teacher       `gorm:"foreignKey:CreatedByTeacherID" json:"created_by_teacher,omitempty"`
 	Teacher         Teacher              `gorm:"foreignKey:CreatedByTeacherID;references:ID" json:"teacher,omitempty"`

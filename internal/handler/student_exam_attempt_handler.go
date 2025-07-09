@@ -17,29 +17,56 @@ func NewStudentExamAttemptHandler(studentExamAttemptService service.StudentExamA
 	return &studentExamAttemptHandler{studentExamAttemptService: studentExamAttemptService, examTokenUsage: examTokenUsage}
 }
 
+// handler/student_exam_attempt_handler.go - Enhanced version
 func (h *studentExamAttemptHandler) StartExamination(c *gin.Context) {
+	sessionInfo, exists := c.Get("examSession")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "exam session not found"})
+		return
+	}
+
+	session := sessionInfo.(*middleware.ExamSessionInfo)
+
+	// Start or continue exam attempt
+	attempt, err := h.studentExamAttemptService.StartOrContinueExam(session.StudentID, session.ExamID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "exam session ready",
+		"session": &session,
+		"attempt": attempt,
+	})
+}
+
+func (h *studentExamAttemptHandler) GetExamProgress(c *gin.Context) {
+	attemptID := c.Param("attemptId")
+
+	attempt, err := h.studentExamAttemptService.GetAttemptProgress(attemptID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"attempt": attempt,
+	})
+}
+
+func (h *studentExamAttemptHandler) FinishExam(c *gin.Context) {
+	attemptID := c.Param("attemptId")
 	currentUser, _ := c.Get(middleware.ContextCurrentUser)
-	examId := c.Query("examId")
-	token := c.Query("token")
-	if err := c.ShouldBindQuery(examId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
-		return
-	}
-	studenExamAttempt, err := h.studentExamAttemptService.Insert(currentUser.(middleware.ClaimResult).ID, examId)
+	studentID := currentUser.(middleware.ClaimResult).ID
+	attempt, err := h.studentExamAttemptService.FinishExam(attemptID, studentID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "error created new exam: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	examTokenUsage, err := h.examTokenUsage.Create(token, examId, currentUser.(middleware.ClaimResult).ID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "error created new exam: " + err.Error()})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{
-		"data": map[string]string{
-			"token":   examTokenUsage.TokenValueUsed,
-			"student": string(studenExamAttempt.Student.Profile),
-		},
-		"msg": "oke",
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "exam finished successfully",
+		"attempt": attempt,
 	})
 }
